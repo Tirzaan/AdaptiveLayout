@@ -40,15 +40,17 @@ public struct AdaptiveView<Compact: View, Regular: View, Mac: View>: View {
     }
 
     public var body: some View {
-        if device == .mac {
-            mac()
-        } else {
-            // Use horizontalSizeClass instead of GeometryReader for the switcher
-            if hSizeClass == .compact {
-                compact()
-            } else {
-                regular()
+        GeometryReader { geo in
+            Group {
+                if device == .mac {
+                    mac()
+                } else if geo.size.width >= 600 {
+                    regular()
+                } else {
+                    compact()
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
