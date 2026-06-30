@@ -10,6 +10,7 @@ public struct AdaptiveContext: Equatable, Sendable {
     public let width: CGFloat
     public let height: CGFloat
     public let sizeClass: AdaptiveSizeClass
+    public let fontScale: CGFloat
     public let horizontalPadding: CGFloat
     public let verticalPadding: CGFloat
     public let spacing: CGFloat
@@ -23,6 +24,7 @@ public struct AdaptiveContext: Equatable, Sendable {
         switch width {
         case ..<600:
             sizeClass = .compact
+            fontScale = 1
             horizontalPadding = 16
             verticalPadding = 16
             spacing = 12
@@ -30,6 +32,7 @@ public struct AdaptiveContext: Equatable, Sendable {
             maxContentWidth = .infinity
         case ..<900:
             sizeClass = .regular
+            fontScale = 1.08
             horizontalPadding = 24
             verticalPadding = 20
             spacing = 16
@@ -37,12 +40,17 @@ public struct AdaptiveContext: Equatable, Sendable {
             maxContentWidth = 760
         default:
             sizeClass = .expanded
+            fontScale = 1.16
             horizontalPadding = 32
             verticalPadding = 24
             spacing = 20
             columns = 3
             maxContentWidth = 1120
         }
+    }
+
+    public func fontSize(_ baseSize: CGFloat) -> CGFloat {
+        baseSize * fontScale
     }
 }
 
@@ -75,41 +83,18 @@ public extension View {
     func adaptiveReadableWidth() -> some View {
         modifier(AdaptiveReadableWidthModifier())
     }
-}
 
-private struct AdaptiveRoot<Content: View>: View {
-    @ViewBuilder let content: Content
-
-    var body: some View {
-        GeometryReader { proxy in
-            let context = AdaptiveContext(
-                width: proxy.size.width,
-                height: proxy.size.height
+    /// Applies a system font whose size follows the current adaptive size class.
+    func adaptiveFont(
+        _ size: CGFloat,
+        weight: Font.Weight = .regular,
+        design: Font.Design = .default
+    ) -> some View {
+        modifier(
+            AdaptiveFontModifier(
+                size: size,
+                weight: weight,
+                design: design
             )
-
-            content
-                .environment(\.adaptiveContext, context)
-                .frame(maxWidth: context.maxContentWidth == .infinity ? .infinity : context.maxContentWidth)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
+        )
     }
-}
-
-private struct AdaptivePaddingModifier: ViewModifier {
-    @Environment(\.adaptiveContext) private var context
-
-    func body(content: Content) -> some View {
-        content.padding(.horizontal, context.horizontalPadding)
-            .padding(.vertical, context.verticalPadding)
-    }
-}
-
-private struct AdaptiveReadableWidthModifier: ViewModifier {
-    @Environment(\.adaptiveContext) private var context
-
-    func body(content: Content) -> some View {
-        content
-            .frame(maxWidth: context.maxContentWidth == .infinity ? .infinity : context.maxContentWidth)
-            .frame(maxWidth: .infinity)
-    }
-}

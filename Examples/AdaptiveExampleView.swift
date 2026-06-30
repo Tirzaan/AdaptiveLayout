@@ -17,10 +17,10 @@ struct AdaptiveExampleView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: adaptive.spacing) {
                 Text("Adaptive Example")
-                    .font(.largeTitle.bold())
+                    .adaptiveFont(34, weight: .bold)
 
                 Text("This layout changes columns, spacing, and padding based on the available screen width.")
-                    .font(.body)
+                    .adaptiveFont(17)
                     .foregroundStyle(.secondary)
 
                 LazyVGrid(columns: columns, spacing: adaptive.spacing) {
@@ -31,10 +31,10 @@ struct AdaptiveExampleView: View {
                                 .foregroundStyle(.blue)
 
                             Text(item)
-                                .font(.headline)
+                                .adaptiveFont(17, weight: .semibold)
 
                             Text("Size class: \(label(for: adaptive.sizeClass))")
-                                .font(.caption)
+                                .adaptiveFont(12)
                                 .foregroundStyle(.secondary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
