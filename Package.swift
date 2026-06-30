@@ -1,4 +1,5 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.0
+
 import PackageDescription
 
 let package = Package(
@@ -6,18 +7,21 @@ let package = Package(
     platforms: [
         .iOS(.v16),
         .macOS(.v13),
-        .macCatalyst(.v16)
+        .tvOS(.v16),
+        .watchOS(.v9),
+        .visionOS(.v1)
     ],
     products: [
         .library(
             name: "AdaptiveLayout",
             targets: ["AdaptiveLayout"]
-        ),
+        )
     ],
     targets: [
-        .target(
-            name: "AdaptiveLayout",
-            path: "Sources/AdaptiveLayout"
-        ),
+        .target(name: "AdaptiveLayout"),
+        .testTarget(
+            name: "AdaptiveLayoutTests",
+            dependencies: ["AdaptiveLayout"]
+        )
     ]
 )

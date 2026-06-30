@@ -1,68 +1,62 @@
 # AdaptiveLayout
 
-A lightweight Swift package that makes it trivial to build SwiftUI layouts that look great on iPhone, iPad, and Mac — without repeating yourself.
-
-## Installation
-
-**Swift Package Manager** → Add Package → paste your repo URL, or drag the folder into Xcode as a local package.
-
-Minimum targets: **iOS 16**, **macOS 13**, **Mac Catalyst 16**
-
----
-
-## What's inside
-
-| File | What it does |
-|---|---|
-| `DeviceType.swift` | `DeviceType` enum + `ScreenSize` ObservableObject |
-| `AdaptiveView.swift` | `AdaptiveView` layout switcher + `AdaptiveStack` |
-| `ViewExtensions.swift` | `.adaptivePadding()` `.adaptiveFont()` `.adaptiveFrame()` `.ifDevice()` |
-| `AdaptiveScreenModifier.swift` | `.adaptiveScreen()` — apply once at the top of your app |
-
----
-
-## Quick start
+`AdaptiveLayout` is a tiny SwiftUI package that gives any view a simple adaptive wrapper:
 
 ```swift
-// 1. Apply once at the app root
-ContentView()
-    .adaptiveScreen()
+import SwiftUI
+import AdaptiveLayout
 
-// 2. Switch layouts based on device
-AdaptiveView {
-    PhoneLayout()       // compact / iPhone
-} regular: {
-    TabletLayout()      // iPad
-} mac: {
-    DesktopLayout()     // Mac
+struct AppRoot: View {
+    var body: some View {
+        ContentView().adaptive
+    }
 }
-
-// 3. Auto VStack ↔ HStack
-AdaptiveStack(spacing: 16) {
-    ImageView()
-    TextBlock()
-}
-
-// 4. Padding & font that scales
-Text("Hello")
-    .adaptivePadding()
-    .adaptiveFont(.title, iPhoneSize: 20, iPadSize: 28, macSize: 24)
-
-// 5. Show only on certain devices
-SidebarView()
-    .ifDevice(.iPad, .mac)
-
-// 6. Read live screen size anywhere
-@EnvironmentObject var screen: ScreenSize
-Image(...).font(.system(size: screen.scale(0.15, min: 40, max: 120)))
 ```
 
----
+The `.adaptive` property measures the available screen size, centers wide layouts, caps readable width on larger screens, and exposes an `adaptiveContext` environment value for screens that need layout decisions.
 
-## Breakpoints
+## Optional helpers
 
-| Width | Layout used |
-|---|---|
-| < 600 pt | Compact (iPhone, iPad Split View) |
-| ≥ 600 pt | Regular (iPad full screen) |
-| Mac | Always Mac layout |
+```swift
+struct ContentView: View {
+    @Environment(\.adaptiveContext) private var adaptive
+
+    var body: some View {
+        LazyVGrid(
+            columns: Array(
+                repeating: GridItem(.flexible(), spacing: adaptive.spacing),
+                count: adaptive.columns
+            ),
+            spacing: adaptive.spacing
+        ) {
+            // Your content
+        }
+        .adaptivePadding()
+    }
+}
+```
+
+## Example view
+
+There is a complete sample at `Examples/AdaptiveExampleView.swift`.
+
+Use it from your app like this:
+
+```swift
+import SwiftUI
+import AdaptiveLayout
+
+struct RootView: View {
+    var body: some View {
+        AdaptiveExampleView().adaptive
+    }
+}
+```
+
+## Install in Xcode
+
+1. Open your app in Xcode.
+2. Choose **File > Add Package Dependencies**.
+3. Select this local folder: `AdaptiveLayout`.
+4. Add `import AdaptiveLayout`.
+5. Wrap your root view with `ContentView().adaptive`.
