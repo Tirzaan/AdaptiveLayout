@@ -98,3 +98,59 @@ public extension View {
             )
         )
     }
+}
+
+struct AdaptiveRoot<Content: View>: View {
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        GeometryReader { proxy in
+            let context = AdaptiveContext(
+                width: proxy.size.width,
+                height: proxy.size.height
+            )
+
+            content
+                .environment(\.adaptiveContext, context)
+                .frame(maxWidth: context.maxContentWidth == .infinity ? .infinity : context.maxContentWidth)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+}
+
+struct AdaptivePaddingModifier: ViewModifier {
+    @Environment(\.adaptiveContext) private var context
+
+    func body(content: Content) -> some View {
+        content.padding(.horizontal, context.horizontalPadding)
+            .padding(.vertical, context.verticalPadding)
+    }
+}
+
+struct AdaptiveReadableWidthModifier: ViewModifier {
+    @Environment(\.adaptiveContext) private var context
+
+    func body(content: Content) -> some View {
+        content
+            .frame(maxWidth: context.maxContentWidth == .infinity ? .infinity : context.maxContentWidth)
+            .frame(maxWidth: .infinity)
+    }
+}
+
+struct AdaptiveFontModifier: ViewModifier {
+    @Environment(\.adaptiveContext) private var context
+
+    let size: CGFloat
+    let weight: Font.Weight
+    let design: Font.Design
+
+    func body(content: Content) -> some View {
+        content.font(
+            .system(
+                size: context.fontSize(size),
+                weight: weight,
+                design: design
+            )
+        )
+    }
+}
